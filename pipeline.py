@@ -16,6 +16,7 @@ try:
 	# Load saved svc and parameters if available
 	svc, svc_params = pickle.load(open('svc_and_params.p', 'rb'))
 
+	## compatability code for the old format of the saved svc and parameters
 	# svc_dict = pickle.load(open('svc_and_params_archive.p', 'rb'))
 	# svc = svc_dict['svc']
 	# del svc_dict['svc']
@@ -52,7 +53,7 @@ def find_cars(img, ystart, ystop, scale, svc, svc_params):
 	hist_bins = svc_params['hist_bins']
 	X_scaler = svc_params['X_scaler']
 
-	draw_img = np.copy(img)
+	#draw_img = np.copy(img)
 	
 	img_tosearch = img[ystart:ystop,:,:]
 	if color_space != 'RGB':
@@ -87,7 +88,7 @@ def find_cars(img, ystart, ystop, scale, svc, svc_params):
 	hog2 = get_hog_features(ch2, orient, pix_per_cell, cell_per_block, feature_vec=False)
 	hog3 = get_hog_features(ch3, orient, pix_per_cell, cell_per_block, feature_vec=False)
 	box_inds = []
-	count_windows=0
+	count_windows = 0
 	for xb in range(nxsteps):
 		for yb in range(nysteps):
 			count_windows += 1
@@ -266,26 +267,27 @@ if __name__ == '__main__':
 
 		figs = {}
 		scale_min = 1.5
-		scale_max = 3.0
+		scale_max = 2.5
 		scale_step = .5
 		scales = np.linspace(scale_min, scale_max, int(1 + (scale_max - scale_min) / scale_step))
 		ystarts = [400, 400, 400]
 		ystops = [592, 624, 680]
 
-		test_imgs = glob.glob('test_images/*.jpg')
+		test_imgs = glob.glob('downloads/*.jpg')
 		print('{} test images found'.format(len(test_imgs)))
 		for test_img in test_imgs:
 			title = test_img
 			img = mpimg.imread(test_img)
 			draw_img = np.copy(img)
 			all_box_inds = []
-			# ystarts = [int(img.shape[0]/3)]
-			# ystops = [int(img.shape[0]*7/8)]
+			ystarts = [int(img.shape[0]/4), int(img.shape[0]/4), int(img.shape[0]/4)]
+			ystops = [int(img.shape[0]*5/8), int(img.shape[0]*6/8), int(img.shape[0]*7/8)]
 			heat = np.zeros_like(img[:,:,0]).astype(np.float)
 			for scale_ys in zip(scales, ystarts, ystops):
 				scale = scale_ys[0]
 				ystart = scale_ys[1]
 				ystop = scale_ys[2]
+				print(ystart, ystop)
 				all_box_inds += find_cars(img, ystart, ystop, scale, svc, svc_params)
 
 			for box_inds in all_box_inds:
