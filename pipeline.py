@@ -60,6 +60,7 @@ def find_cars(img, ystart, ystop, scale, svc, svc_params):
 		ctrans_tosearch = convert_color(img_tosearch, conv=color_space_str)
 	else:
 		ctrans_tosearch = img_tosearch
+
 	if scale != 1:
 		imshape = ctrans_tosearch.shape
 		ctrans_tosearch = cv2.resize(ctrans_tosearch, (np.int(imshape[1]/scale), np.int(imshape[0]/scale)))
@@ -131,6 +132,12 @@ def find_cars(img, ystart, ystop, scale, svc, svc_params):
 
 
 def add_heat(heatmap, bbox_list):
+	"""
+	Takes in the existing heatmap, updates it with the incoming bounding boxes, then returns the updated heatmap
+	:param heatmap: the existing heatmap
+	:param bbox_list: incoming list of bounding boxes (which contain vehicles)
+	:return: updated heatmap
+	"""
 	# Iterate through list of bboxes
 	for box in bbox_list:
 		# Add += 1 for all pixels inside each bbox
@@ -142,6 +149,12 @@ def add_heat(heatmap, bbox_list):
 
 
 def apply_threshold(heatmap, threshold):
+	"""
+	remove pixels from the heatmap that are below the input threshold
+	:param heatmap: existing heatmap
+	:param threshold: threshold
+	:return: updated heatmap
+	"""
 	# Zero out pixels below the threshold
 	heatmap[heatmap <= threshold] = 0
 	# Return thresholded map
@@ -149,6 +162,12 @@ def apply_threshold(heatmap, threshold):
 
 
 def draw_labeled_bboxes(img, labels):
+	"""
+	generates a labeled bounding box
+	:param img: input image
+	:param labels: a list of labels
+	:return: image with labeled bounding boxes
+	"""
 	# Iterate through all detected cars
 	bboxes = []
 	for car_number in range(1, labels[1]+1):
@@ -247,7 +266,7 @@ if __name__ == '__main__':
 
 		figs = {}
 		scale_min = 1.5
-		scale_max = 2.5
+		scale_max = 3.0
 		scale_step = .5
 		scales = np.linspace(scale_min, scale_max, int(1 + (scale_max - scale_min) / scale_step))
 		ystarts = [400, 400, 400]
